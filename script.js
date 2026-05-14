@@ -176,7 +176,7 @@ function saveBirthdayFromControls() {
   render();
 }
 
-function createTickElements(count, labelEvery, labels = []) {
+function createTickElements(count, labelEvery, labels = [], subdivisions = 1) {
   const parts = [];
   for (let i = 0; i < count; i += 1) {
     const progress = i / count;
@@ -188,11 +188,21 @@ function createTickElements(count, labelEvery, labels = []) {
       `<line class="${major ? "tick-major" : "tick-minor"}" x1="${inner.x.toFixed(2)}" y1="${inner.y.toFixed(2)}" x2="${outer.x.toFixed(2)}" y2="${outer.y.toFixed(2)}"></line>`
     );
 
-    if (major) {
-      const label = labels[i] ?? String(i);
+    const explicitLabel = labels[i] !== undefined && labels[i] !== "";
+    if (major || explicitLabel) {
+      const label = explicitLabel ? labels[i] : String(i);
       const labelPoint = pointAt(angle, 66);
       parts.push(
         `<text class="tick-label" x="${labelPoint.x.toFixed(2)}" y="${labelPoint.y.toFixed(2)}">${label}</text>`
+      );
+    }
+
+    for (let j = 1; j < subdivisions; j += 1) {
+      const subAngle = angleFor((i + j / subdivisions) / count);
+      const subOuter = pointAt(subAngle, 88);
+      const subInner = pointAt(subAngle, 84);
+      parts.push(
+        `<line class="tick-subminor" x1="${subInner.x.toFixed(2)}" y1="${subInner.y.toFixed(2)}" x2="${subOuter.x.toFixed(2)}" y2="${subOuter.y.toFixed(2)}"></line>`
       );
     }
   }
@@ -219,6 +229,15 @@ function createInnerRing(ring) {
       const label = labels[i] ?? String(i);
       parts.push(
         `<text class="ring-label ${ring.symbols ? "symbol" : ""}" x="${labelPoint.x.toFixed(2)}" y="${labelPoint.y.toFixed(2)}">${label}</text>`
+      );
+    }
+
+    for (let j = 1; j < (ring.subdivisions || 1); j += 1) {
+      const subAngle = angleFor((i + j / ring.subdivisions) / ring.count);
+      const outer = pointAt(subAngle, ring.radius + 2);
+      const inner = pointAt(subAngle, ring.radius - 2);
+      parts.push(
+        `<line class="ring-subtick" x1="${inner.x.toFixed(2)}" y1="${inner.y.toFixed(2)}" x2="${outer.x.toFixed(2)}" y2="${outer.y.toFixed(2)}"></line>`
       );
     }
   }
@@ -256,7 +275,7 @@ function renderClock(clock) {
         <svg class="clock-face" viewBox="0 0 200 200" role="img" aria-label="${clock.title}: ${clock.value}">
           <circle class="dial-outer" cx="100" cy="100" r="92"></circle>
           <circle class="dial-inner" cx="100" cy="100" r="72"></circle>
-          ${createTickElements(clock.tickCount, clock.labelEvery, labels)}
+          ${createTickElements(clock.tickCount, clock.labelEvery, labels, clock.subdivisions || 1)}
           ${(clock.innerRings || []).map(createInnerRing).join("")}
           ${clock.hands.map(handElement).join("")}
           <circle class="hub" cx="100" cy="100" r="5"></circle>
@@ -466,10 +485,21 @@ function personalClocks(now) {
       labels: Array.from({ length: 100 }, (_, i) => (i % 10 === 0 ? String(i) : "")),
       innerRings: [
         {
-          count: 10,
-          labelEvery: 1,
+          count: 100,
+          labelEvery: 10,
           radius: 44,
-          labels: Array.from({ length: 10 }, (_, i) => `${i * 10}`),
+          labels: {
+            0: "0/10",
+            10: "1",
+            20: "2",
+            30: "3",
+            40: "4",
+            50: "5",
+            60: "6",
+            70: "7",
+            80: "8",
+            90: "9",
+          },
         },
       ],
       hands: [
@@ -494,23 +524,18 @@ function personalClocks(now) {
       value: formatPercent(personalProgress),
       tickCount: 52,
       labelEvery: 13,
-      labels: { 0: "W1", 13: "W14", 26: "W27", 39: "W40" },
-      innerRings: [
-        {
-          count: 4,
-          labelEvery: 1,
-          radius: 44,
-          symbols: true,
-          labels: ["I", "II", "III", "IV"],
-        },
-      ],
+      subdivisions: 2,
+      labels: {
+        0: "W1",
+        6: "W7",
+        13: "W14",
+        19: "W20",
+        26: "W27",
+        32: "W33",
+        39: "W40",
+        45: "W46",
+      },
       hands: [
-        {
-          progress: Math.floor(personalProgress * 4) / 4,
-          length: 52,
-          className: "hand-coarse",
-          label: "Season",
-        },
         {
           progress: personalProgress,
           length: 82,

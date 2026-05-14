@@ -180,6 +180,11 @@ section {
   stroke-width: 0.9;
 }
 
+.tick-subminor {
+  stroke: rgba(29, 37, 37, 0.2);
+  stroke-width: 0.55;
+}
+
 .tick-major {
   stroke: var(--ink);
   stroke-width: 1.8;
@@ -202,6 +207,11 @@ section {
 .ring-tick {
   stroke: rgba(29, 37, 37, 0.28);
   stroke-width: 0.8;
+}
+
+.ring-subtick {
+  stroke: rgba(29, 37, 37, 0.18);
+  stroke-width: 0.55;
 }
 
 .ring-label {
