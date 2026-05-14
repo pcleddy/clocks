@@ -380,7 +380,16 @@ function calendarClocks(now) {
       value: formatPercent(yearFraction),
       tickCount: 52,
       labelEvery: 13,
-      labels: { 0: "W1", 13: "W14", 26: "W27", 39: "W40" },
+      labels: {
+        0: "W1",
+        6: "W7",
+        13: "W14",
+        19: "W20",
+        26: "W27",
+        32: "W33",
+        39: "W40",
+        45: "W46",
+      },
       innerRings: [
         {
           count: 12,
@@ -390,12 +399,6 @@ function calendarClocks(now) {
         },
       ],
       hands: [
-        {
-          progress: (now.getMonth() + monthProgress) / 12,
-          length: 52,
-          className: "hand-coarse",
-          label: "Month",
-        },
         {
           progress: yearFraction,
           length: 82,
