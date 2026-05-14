@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clocks</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">Analog time scales</p>
+          <h1>Clocks</h1>
+        </div>
+        <time id="nowStamp" datetime=""></time>
+      </header>
+
+      <section aria-labelledby="calendarTitle">
+        <div class="section-heading">
+          <h2 id="calendarTitle">Calendar</h2>
+        </div>
+        <div id="calendarClocks" class="clock-grid calendar-grid"></div>
+      </section>
+
+      <section aria-labelledby="personalTitle">
+        <div class="section-heading personal-heading">
+          <h2 id="personalTitle">Personal</h2>
+          <form id="birthdayForm" class="birthday-form" autocomplete="off">
+            <label>
+              <span>Year</span>
+              <select id="birthYear" name="birthYear" aria-label="Birth year"></select>
+            </label>
+            <label>
+              <span>Month</span>
+              <select id="birthMonth" name="birthMonth" aria-label="Birth month"></select>
+            </label>
+            <label>
+              <span>Day</span>
+              <select id="birthDay" name="birthDay" aria-label="Birth day"></select>
+            </label>
+          </form>
+        </div>
+        <p id="birthdayMessage" class="message" role="status"></p>
+        <div id="personalClocks" class="clock-grid personal-grid"></div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
