@@ -81,6 +81,26 @@ function pointAt(angleDegrees, radius) {
   };
 }
 
+function arcPath(startProgress, endProgress, radius) {
+  const startAngle = angleFor(startProgress);
+  const endAngle = angleFor(endProgress);
+  const start = pointAt(startAngle, radius);
+  const end = pointAt(endAngle, radius);
+  const sweep = Math.max(0, endProgress - startProgress);
+  const largeArc = sweep > 0.5 ? 1 : 0;
+  return `M ${start.x.toFixed(2)} ${start.y.toFixed(2)} A ${radius} ${radius} 0 ${largeArc} 1 ${end.x.toFixed(2)} ${end.y.toFixed(2)}`;
+}
+
+function arcElements(arcs = []) {
+  return arcs
+    .filter((arc) => arc.end > arc.start)
+    .map(
+      (arc) =>
+        `<path class="arc-track ${arc.className}" d="${arcPath(arc.start, arc.end, arc.radius || 91)}"></path>`
+    )
+    .join("");
+}
+
 function formatPercent(value) {
   return `${Math.round(value * 1000) / 10}%`;
 }
@@ -275,6 +295,7 @@ function renderClock(clock) {
         <svg class="clock-face" viewBox="0 0 200 200" role="img" aria-label="${clock.title}: ${clock.value}">
           <circle class="dial-outer" cx="100" cy="100" r="92"></circle>
           <circle class="dial-inner" cx="100" cy="100" r="72"></circle>
+          ${arcElements(clock.arcs)}
           ${createTickElements(clock.tickCount, clock.labelEvery, labels, clock.subdivisions || 1)}
           ${(clock.innerRings || []).map(createInnerRing).join("")}
           ${clock.hands.map(handElement).join("")}
@@ -486,6 +507,18 @@ function personalClocks(now) {
       tickCount: 100,
       labelEvery: 10,
       labels: Array.from({ length: 100 }, (_, i) => (i % 10 === 0 ? String(i) : "")),
+      arcs: [
+        {
+          start: 0,
+          end: lifetimeProgress,
+          className: "arc-elapsed",
+        },
+        {
+          start: lifetimeProgress,
+          end: 1,
+          className: "arc-remaining",
+        },
+      ],
       innerRings: [
         {
           count: 100,

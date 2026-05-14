@@ -45,7 +45,7 @@ The second row shows clocks personalized to the user.
 
 | Clock | Range | Primary scale | Hands and rings |
 | --- | --- | --- | --- |
-| Lifetime century | 100 years from the user's birthday | Age within 100 years | Short hand tracks total lifetime progress; long hand tracks year within the current life decade; inner ring labels `0-10` |
+| Lifetime century | 100 years from the user's birthday | Age within 100 years | Short hand tracks total lifetime progress; long hand tracks year within the current life decade; inner ring labels `0-10`; shade elapsed time and remaining time with distinct colors |
 | Personal year | 1 year starting on the user's birthday | 52 weeks, with half-week minor ticks | One hand tracks week progress through the birthday-to-birthday year; label quarter marks and the midpoint between each quarter |
 
 ## Dial Detail

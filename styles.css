@@ -175,6 +175,21 @@ section {
   stroke-width: 0.8;
 }
 
+.arc-track {
+  fill: none;
+  stroke-width: 10;
+  stroke-linecap: butt;
+  opacity: 0.82;
+}
+
+.arc-elapsed {
+  stroke: rgba(29, 122, 121, 0.34);
+}
+
+.arc-remaining {
+  stroke: rgba(183, 73, 66, 0.18);
+}
+
 .tick-minor {
   stroke: rgba(29, 37, 37, 0.36);
   stroke-width: 0.9;
