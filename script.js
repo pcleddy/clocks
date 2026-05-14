@@ -415,7 +415,7 @@ function calendarClocks(now) {
       value: now.toLocaleTimeString(),
       tickCount: 24,
       labelEvery: 2,
-      labels: Array.from({ length: 24 }, (_, i) => String(i)),
+      labels: Array.from({ length: 24 }, (_, i) => (i % 2 === 0 ? String(i) : "")),
       innerRings: [
         {
           count: 60,
