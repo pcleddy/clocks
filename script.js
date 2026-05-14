@@ -306,25 +306,21 @@ function calendarClocks(now) {
       ),
       innerRings: [
         {
-          count: 10,
-          labelEvery: 1,
+          count: 100,
+          labelEvery: 10,
           radius: 44,
-          labels: Array.from({ length: 10 }, (_, i) => `${i * 10}`),
+          labels: Array.from({ length: 100 }, (_, i) =>
+            i % 10 === 0 ? String(i).padStart(2, "0") : ""
+          ),
         },
       ],
       hands: [
         {
-          progress: Math.floor(yearsIntoCentury / 10) / 10,
-          length: 48,
-          className: "hand-coarse",
-          label: "Decade",
-        },
-        {
-          progress: (yearsIntoCentury % 10) / 10,
+          progress: yearsIntoCentury / 100,
           length: 78,
           className: "hand-fine",
           swatch: "fine",
-          label: "Year in decade",
+          label: "Year in century",
         },
       ],
     },
@@ -398,16 +394,16 @@ function calendarClocks(now) {
         day: "numeric",
       }),
       value: now.toLocaleTimeString(),
-      tickCount: 60,
-      labelEvery: 15,
-      labels: { 0: "00", 15: "15", 30: "30", 45: "45" },
+      tickCount: 24,
+      labelEvery: 2,
+      labels: Array.from({ length: 24 }, (_, i) => String(i)),
       innerRings: [
         {
-          count: 24,
-          labelEvery: 2,
+          count: 60,
+          labelEvery: 15,
           radius: 45,
           labelRadius: 35,
-          labels: Array.from({ length: 24 }, (_, i) => String(i)),
+          labels: { 0: "00", 15: "15", 30: "30", 45: "45" },
         },
       ],
       hands: [
@@ -478,7 +474,7 @@ function personalClocks(now) {
       ],
       hands: [
         {
-          progress: Math.floor(yearsAlive / 10) / 10,
+          progress: yearsAlive / 100,
           length: 48,
           className: "hand-coarse",
           label: "Life decade",
