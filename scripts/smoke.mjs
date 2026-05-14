@@ -68,6 +68,7 @@ function createHarness() {
   const selectors = [
     "#calendarClocks",
     "#personalClocks",
+    "#decimalClocks",
     "#nowStamp",
     "#birthYear",
     "#birthMonth",
@@ -133,6 +134,7 @@ async function smokeRenderHarness() {
 
   const calendar = harness.elements.get("#calendarClocks");
   const personal = harness.elements.get("#personalClocks");
+  const decimal = harness.elements.get("#decimalClocks");
   const nowStamp = harness.elements.get("#nowStamp");
   const year = harness.elements.get("#birthYear");
   const month = harness.elements.get("#birthMonth");
@@ -141,13 +143,18 @@ async function smokeRenderHarness() {
 
   assert.equal((calendar.innerHTML.match(/class="clock-card"/g) || []).length, 5);
   assert.equal((personal.innerHTML.match(/class="clock-card"/g) || []).length, 2);
+  assert.equal((decimal.innerHTML.match(/class="clock-card"/g) || []).length, 3);
   assert.equal((calendar.innerHTML.match(/<svg class="clock-face"/g) || []).length, 5);
   assert.equal((personal.innerHTML.match(/<svg class="clock-face"/g) || []).length, 2);
+  assert.equal((decimal.innerHTML.match(/<svg class="clock-face"/g) || []).length, 3);
   assert.match(calendar.innerHTML, /Day/);
   assert.match(calendar.innerHTML, /Decimal Day/);
   assert.match(calendar.innerHTML, /Second/);
   assert.match(personal.innerHTML, /Lifetime Century/);
   assert.match(personal.innerHTML, /Personal Year/);
+  assert.match(decimal.innerHTML, /Decimal Century/);
+  assert.match(decimal.innerHTML, /Decimal Decade/);
+  assert.match(decimal.innerHTML, /Decimal Year/);
   assert.match(nowStamp.textContent, /\d/);
   assert.ok(nowStamp.dateTime);
   assert.ok(year.children.length >= 100);

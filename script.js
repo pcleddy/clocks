@@ -31,6 +31,7 @@ const shortMonthNames = [
 
 const calendarEl = document.querySelector("#calendarClocks");
 const personalEl = document.querySelector("#personalClocks");
+const decimalEl = document.querySelector("#decimalClocks");
 const nowStamp = document.querySelector("#nowStamp");
 const birthYear = document.querySelector("#birthYear");
 const birthMonth = document.querySelector("#birthMonth");
@@ -504,6 +505,98 @@ function calendarClocks(now) {
   ];
 }
 
+function decimalClocks(now) {
+  const year = now.getFullYear();
+  const centuryStart = Math.floor(year / 100) * 100;
+  const decadeStart = Math.floor(year / 10) * 10;
+  const yearFraction = yearProgress(now);
+  const yearsIntoCentury = year - centuryStart + yearFraction;
+  const yearsIntoDecade = year - decadeStart + yearFraction;
+  const decimalYear = yearFraction * 10;
+
+  return [
+    {
+      title: "Decimal Century",
+      subtitle: `${centuryStart}-${centuryStart + 99}`,
+      value: `${formatDecimal(yearsIntoCentury / 10)} / 10`,
+      tickCount: 10,
+      labelEvery: 1,
+      labels: Array.from({ length: 10 }, (_, i) => String(i)),
+      innerRings: [
+        {
+          count: 10,
+          labelEvery: 1,
+          radius: 44,
+          labels: Array.from({ length: 10 }, (_, i) => String(i)),
+        },
+      ],
+      hands: [
+        {
+          progress: yearsIntoCentury / 100,
+          length: 54,
+          className: "hand-coarse",
+          label: "Century tenth",
+        },
+        {
+          progress: (yearsIntoCentury % 10) / 10,
+          length: 82,
+          className: "hand-fine",
+          swatch: "fine",
+          label: "Year in tenth",
+        },
+      ],
+    },
+    {
+      title: "Decimal Decade",
+      subtitle: `${decadeStart}-${decadeStart + 9}`,
+      value: `${formatDecimal(yearsIntoDecade)} / 10`,
+      tickCount: 10,
+      labelEvery: 1,
+      labels: Array.from({ length: 10 }, (_, i) => String(i)),
+      hands: [
+        {
+          progress: yearsIntoDecade / 10,
+          length: 82,
+          className: "hand-fine",
+          swatch: "fine",
+          label: "Year in decade",
+        },
+      ],
+    },
+    {
+      title: "Decimal Year",
+      subtitle: String(year),
+      value: `${formatDecimal(decimalYear)} / 10`,
+      tickCount: 10,
+      labelEvery: 1,
+      labels: Array.from({ length: 10 }, (_, i) => String(i)),
+      innerRings: [
+        {
+          count: 10,
+          labelEvery: 1,
+          radius: 44,
+          labels: Array.from({ length: 10 }, (_, i) => String(i)),
+        },
+      ],
+      hands: [
+        {
+          progress: yearFraction,
+          length: 54,
+          className: "hand-coarse",
+          label: "Year tenth",
+        },
+        {
+          progress: (decimalYear % 1),
+          length: 82,
+          className: "hand-fine",
+          swatch: "fine",
+          label: "Tenth detail",
+        },
+      ],
+    },
+  ];
+}
+
 function previousBirthday(now, birthday) {
   let date = new Date(now.getFullYear(), birthday.getMonth(), birthday.getDate());
   if (date > now) date = addYears(date, -1);
@@ -628,6 +721,7 @@ function render() {
 
   calendarEl.innerHTML = calendarClocks(now).map(renderClock).join("");
   personalEl.innerHTML = personalClocks(now).map(renderClock).join("");
+  decimalEl.innerHTML = decimalClocks(now).map(renderClock).join("");
 }
 
 birthYear.addEventListener("change", () => {

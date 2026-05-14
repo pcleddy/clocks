@@ -1,6 +1,6 @@
 # Clocks Page Requirements
 
-Build a single HTML page that displays analog clocks arranged in two rows.
+Build a single HTML page that displays analog clocks arranged in three rows.
 
 The design has artistic freedom, but the clocks should read as analog dials:
 circular faces, meaningful tick marks, and hands whose length and weight
@@ -50,6 +50,16 @@ The second row shows clocks personalized to the user.
 | --- | --- | --- | --- |
 | Lifetime century | 100 years from the user's birthday | Age within 100 years | Short hand tracks total lifetime progress; long hand tracks year within the current life decade; inner ring labels `0-10`; shade elapsed time and remaining time with distinct colors |
 | Personal year | 1 year starting on the user's birthday | 52 weeks, with half-week minor ticks | One hand tracks week progress through the birthday-to-birthday year; label quarter marks and the midpoint between each quarter |
+
+## Row 3: Decimal Clocks
+
+The third row shows base-10 versions of larger calendar scales:
+
+| Clock | Range | Primary scale | Hands and rings |
+| --- | --- | --- | --- |
+| Decimal century | 100 years | 10 equal units | Short hand tracks the current tenth of the century; long hand tracks progress within that tenth |
+| Decimal decade | 10 years | 10 equal units | One hand tracks current progress through the decade |
+| Decimal year | 1 year | 10 equal units | Short hand tracks the current tenth of the year; long hand tracks progress within that tenth |
 
 ## Dial Detail
 

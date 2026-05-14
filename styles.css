@@ -112,6 +112,10 @@ section {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.decimal-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .clock-card {
   min-width: 0;
   padding: 18px;
@@ -348,6 +352,10 @@ select {
   .calendar-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .decimal-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 720px) {
@@ -368,7 +376,8 @@ select {
   }
 
   .calendar-grid,
-  .personal-grid {
+  .personal-grid,
+  .decimal-grid {
     grid-template-columns: 1fr;
   }
 
