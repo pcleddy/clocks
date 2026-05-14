@@ -109,6 +109,10 @@ function weekNumber(progress) {
   return progress * 52 + 1;
 }
 
+function militaryTime(now) {
+  return `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}
+
 function dateKey(date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
@@ -430,7 +434,7 @@ function calendarClocks(now) {
         month: "short",
         day: "numeric",
       }),
-      value: now.toLocaleTimeString(),
+      value: militaryTime(now),
       tickCount: 24,
       labelEvery: 2,
       labels: Array.from({ length: 24 }, (_, i) => (i % 2 === 0 ? String(i) : "")),
@@ -463,6 +467,37 @@ function calendarClocks(now) {
           className: "hand-second",
           swatch: "second",
           label: "Second",
+        },
+      ],
+    },
+    {
+      title: "Decimal Day",
+      subtitle: "Day divided into 10 equal units",
+      value: `${formatDecimal(dayProgress * 10)} / 10`,
+      tickCount: 10,
+      labelEvery: 1,
+      labels: Array.from({ length: 10 }, (_, i) => String(i)),
+      innerRings: [
+        {
+          count: 10,
+          labelEvery: 1,
+          radius: 44,
+          labels: Array.from({ length: 10 }, (_, i) => String(i)),
+        },
+      ],
+      hands: [
+        {
+          progress: dayProgress,
+          length: 54,
+          className: "hand-coarse",
+          label: "Decimal day",
+        },
+        {
+          progress: (now.getMinutes() * 60 + now.getSeconds()) / 3600,
+          length: 82,
+          className: "hand-fine",
+          swatch: "fine",
+          label: "Decimal hour",
         },
       ],
     },

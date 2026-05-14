@@ -139,11 +139,12 @@ async function smokeRenderHarness() {
   const day = harness.elements.get("#birthDay");
   const message = harness.elements.get("#birthdayMessage");
 
-  assert.equal((calendar.innerHTML.match(/class="clock-card"/g) || []).length, 4);
+  assert.equal((calendar.innerHTML.match(/class="clock-card"/g) || []).length, 5);
   assert.equal((personal.innerHTML.match(/class="clock-card"/g) || []).length, 2);
-  assert.equal((calendar.innerHTML.match(/<svg class="clock-face"/g) || []).length, 4);
+  assert.equal((calendar.innerHTML.match(/<svg class="clock-face"/g) || []).length, 5);
   assert.equal((personal.innerHTML.match(/<svg class="clock-face"/g) || []).length, 2);
   assert.match(calendar.innerHTML, /Day/);
+  assert.match(calendar.innerHTML, /Decimal Day/);
   assert.match(calendar.innerHTML, /Second/);
   assert.match(personal.innerHTML, /Lifetime Century/);
   assert.match(personal.innerHTML, /Personal Year/);

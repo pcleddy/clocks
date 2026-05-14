@@ -28,7 +28,8 @@ The first row shows fixed calendar-based clocks:
 | Century | 100 years | Year within century | One hand tracking continuous year-within-century progress; outer ring labels decades |
 | Decade | 10 years | Year within decade | Short hand for year position, longer hand for month progress; inner ring labels months |
 | Year | 1 year | 52 weeks | One hand tracks continuous year progress; outer ring labels quarter weeks plus midpoints and inner ring labels months |
-| 24-hour day | 1 day | 24 hours | 24-hour hand, minute hand, and second hand; outer ring labels even hours and inner ring labels minutes |
+| 24-hour day | 1 day | 24 hours | 24-hour hand, minute hand, and second hand; outer ring labels even hours, inner ring labels minutes, and readout uses military time |
+| Decimal day | 1 day | 10 equal units | Short hand tracks current progress through a base-10 day; long hand tracks progress through the current hour broken into 10 units with a matching inner ring |
 
 ## Row 2: User Clocks
 
