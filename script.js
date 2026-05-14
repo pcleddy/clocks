@@ -101,8 +101,12 @@ function arcElements(arcs = []) {
     .join("");
 }
 
-function formatPercent(value) {
-  return `${Math.round(value * 1000) / 10}%`;
+function formatDecimal(value, places = 1) {
+  return value.toFixed(places);
+}
+
+function weekNumber(progress) {
+  return progress * 52 + 1;
 }
 
 function dateKey(date) {
@@ -338,22 +342,12 @@ function calendarClocks(now) {
     {
       title: "Century",
       subtitle: `${centuryStart}-${centuryStart + 99}`,
-      value: formatPercent(yearsIntoCentury / 100),
+      value: `${formatDecimal(yearsIntoCentury)} years`,
       tickCount: 100,
       labelEvery: 10,
       labels: Array.from({ length: 100 }, (_, i) =>
         i % 10 === 0 ? String(centuryStart + i).slice(2) : ""
       ),
-      innerRings: [
-        {
-          count: 100,
-          labelEvery: 10,
-          radius: 44,
-          labels: Array.from({ length: 100 }, (_, i) =>
-            i % 10 === 0 ? String(i).padStart(2, "0") : ""
-          ),
-        },
-      ],
       hands: [
         {
           progress: yearsIntoCentury / 100,
@@ -367,7 +361,7 @@ function calendarClocks(now) {
     {
       title: "Decade",
       subtitle: `${decadeStart}-${decadeStart + 9}`,
-      value: formatPercent(yearsIntoDecade / 10),
+      value: `${formatDecimal(yearsIntoDecade)} years`,
       tickCount: 10,
       labelEvery: 1,
       labels: Array.from({ length: 10 }, (_, i) => String(decadeStart + i)),
@@ -398,7 +392,7 @@ function calendarClocks(now) {
     {
       title: "Year",
       subtitle: String(year),
-      value: formatPercent(yearFraction),
+      value: `W${formatDecimal(weekNumber(yearFraction))}`,
       tickCount: 52,
       labelEvery: 13,
       labels: {
@@ -503,7 +497,7 @@ function personalClocks(now) {
     {
       title: "Lifetime Century",
       subtitle: `${dateKey(selectedBirthday)} to ${dateKey(hundredth)}`,
-      value: `${age} years old`,
+      value: `${formatDecimal(yearsAlive)} years old`,
       tickCount: 100,
       labelEvery: 10,
       labels: Array.from({ length: 100 }, (_, i) => (i % 10 === 0 ? String(i) : "")),
@@ -557,7 +551,7 @@ function personalClocks(now) {
     {
       title: "Personal Year",
       subtitle: `${shortMonthNames[personalStart.getMonth()]} ${personalStart.getDate()} to ${shortMonthNames[personalEnd.getMonth()]} ${personalEnd.getDate()}`,
-      value: formatPercent(personalProgress),
+      value: `W${formatDecimal(weekNumber(personalProgress))}`,
       tickCount: 52,
       labelEvery: 13,
       subdivisions: 2,

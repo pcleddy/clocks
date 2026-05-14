@@ -16,6 +16,8 @@ communicate their scale.
   the dial.
 - When a hand uses an inner ring, the ring labels should directly match what
   that hand measures.
+- Show live numeric readouts in natural units instead of percentages, using
+  one decimal place where useful.
 
 ## Row 1: Calendar Clocks
 
@@ -23,7 +25,7 @@ The first row shows fixed calendar-based clocks:
 
 | Clock | Range | Primary scale | Hands and rings |
 | --- | --- | --- | --- |
-| Century | 100 years | Year within century | One hand tracking continuous year-within-century progress; outer ring labels decades and inner ring labels `00-99` |
+| Century | 100 years | Year within century | One hand tracking continuous year-within-century progress; outer ring labels decades |
 | Decade | 10 years | Year within decade | Short hand for year position, longer hand for month progress; inner ring labels months |
 | Year | 1 year | 52 weeks | One hand tracks continuous year progress; outer ring labels quarter weeks plus midpoints and inner ring labels months |
 | 24-hour day | 1 day | 24 hours | 24-hour hand, minute hand, and second hand; outer ring labels even hours and inner ring labels minutes |
