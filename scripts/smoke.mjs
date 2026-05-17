@@ -192,6 +192,7 @@ async function smokeStaticFiles() {
   assert.match(timezoneHtml, /href="index\.html"/);
   assert.match(timezoneHtml, /<script src="timezone\.js"><\/script>/);
   assert.match(timezoneHtml, /list="cityOptions"/);
+  assert.match(timezoneHtml, /Search 50 major cities/);
   assert.match(css, /\.clock-face/);
   assert.match(css, /\.site-nav/);
   assert.match(css, /\.hand-coarse/);

@@ -446,6 +446,13 @@ button {
   background: rgba(29, 122, 121, 0.08);
 }
 
+.timezone-note {
+  margin: 12px 4px 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
 .message {
   min-height: 22px;
   margin: -8px 4px 14px;

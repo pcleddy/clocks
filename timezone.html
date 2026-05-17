@@ -37,8 +37,8 @@
               <p class="clock-value" data-value="left"></p>
             </div>
             <label class="city-picker">
-              <span>City</span>
-              <input id="leftCitySearch" list="cityOptions" autocomplete="off" spellcheck="false">
+              <span>Search city</span>
+              <input id="leftCitySearch" list="cityOptions" autocomplete="off" spellcheck="false" placeholder="Search 50 major cities">
             </label>
             <label class="time-control">
               <span data-time-label="left"></span>
@@ -60,8 +60,8 @@
               <p class="clock-value" data-value="right"></p>
             </div>
             <label class="city-picker">
-              <span>City</span>
-              <input id="rightCitySearch" list="cityOptions" autocomplete="off" spellcheck="false">
+              <span>Search city</span>
+              <input id="rightCitySearch" list="cityOptions" autocomplete="off" spellcheck="false" placeholder="Search 50 major cities">
             </label>
             <label class="time-control">
               <span data-time-label="right"></span>
@@ -74,6 +74,7 @@
             <div class="clock-face-wrap" data-face="right"></div>
           </article>
         </div>
+        <p class="timezone-note">Search either city field to swap cities; the clocks keep the same matched instant.</p>
         <datalist id="cityOptions"></datalist>
       </section>
     </main>
