@@ -399,6 +399,7 @@ button {
   cursor: pointer;
 }
 
+.city-picker,
 .time-control {
   display: grid;
   gap: 6px;
@@ -409,6 +410,7 @@ button {
   text-transform: uppercase;
 }
 
+.city-picker input,
 .time-control input {
   width: 100%;
   min-height: 42px;

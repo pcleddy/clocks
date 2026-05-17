@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Albuquerque and Berlin Clocks</title>
+    <title>City Match Clocks</title>
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
@@ -11,7 +11,7 @@
       <header class="masthead">
         <div>
           <p class="eyebrow">Matched city time</p>
-          <h1>Albuquerque / Berlin</h1>
+          <h1>City Match</h1>
         </div>
         <div class="header-tools">
           <nav class="site-nav" aria-label="Pages">
@@ -28,44 +28,53 @@
           <button id="useCurrentTime" class="plain-button" type="button">Use current time</button>
         </div>
         <div class="clock-grid timezone-grid">
-          <article class="clock-card city-clock" data-city="albuquerque">
+          <article class="clock-card city-clock" data-slot="left">
             <div class="clock-top">
               <div>
-                <h3 class="clock-title">Albuquerque</h3>
-                <p class="clock-subtitle">Mountain time</p>
+                <h3 class="clock-title" data-title="left"></h3>
+                <p class="clock-subtitle" data-subtitle="left"></p>
               </div>
-              <p class="clock-value" data-value="albuquerque"></p>
+              <p class="clock-value" data-value="left"></p>
             </div>
-            <label class="time-control">
-              <span>Set Albuquerque time</span>
-              <input id="albuquerqueInput" type="datetime-local" step="60">
+            <label class="city-picker">
+              <span>City</span>
+              <input id="leftCitySearch" list="cityOptions" autocomplete="off" spellcheck="false">
             </label>
-            <div class="time-stepper" aria-label="Adjust Albuquerque time by hour">
-              <button type="button" data-step-city="albuquerque" data-step-hours="-1">-1 hour</button>
-              <button type="button" data-step-city="albuquerque" data-step-hours="1">+1 hour</button>
+            <label class="time-control">
+              <span data-time-label="left"></span>
+              <input id="leftTimeInput" type="datetime-local" step="60">
+            </label>
+            <div class="time-stepper" aria-label="Adjust left clock time by hour">
+              <button type="button" data-step-slot="left" data-step-hours="-1">-1 hour</button>
+              <button type="button" data-step-slot="left" data-step-hours="1">+1 hour</button>
             </div>
-            <div class="clock-face-wrap" data-face="albuquerque"></div>
+            <div class="clock-face-wrap" data-face="left"></div>
           </article>
 
-          <article class="clock-card city-clock" data-city="berlin">
+          <article class="clock-card city-clock" data-slot="right">
             <div class="clock-top">
               <div>
-                <h3 class="clock-title">Berlin</h3>
-                <p class="clock-subtitle">Central European time</p>
+                <h3 class="clock-title" data-title="right"></h3>
+                <p class="clock-subtitle" data-subtitle="right"></p>
               </div>
-              <p class="clock-value" data-value="berlin"></p>
+              <p class="clock-value" data-value="right"></p>
             </div>
-            <label class="time-control">
-              <span>Set Berlin time</span>
-              <input id="berlinInput" type="datetime-local" step="60">
+            <label class="city-picker">
+              <span>City</span>
+              <input id="rightCitySearch" list="cityOptions" autocomplete="off" spellcheck="false">
             </label>
-            <div class="time-stepper" aria-label="Adjust Berlin time by hour">
-              <button type="button" data-step-city="berlin" data-step-hours="-1">-1 hour</button>
-              <button type="button" data-step-city="berlin" data-step-hours="1">+1 hour</button>
+            <label class="time-control">
+              <span data-time-label="right"></span>
+              <input id="rightTimeInput" type="datetime-local" step="60">
+            </label>
+            <div class="time-stepper" aria-label="Adjust right clock time by hour">
+              <button type="button" data-step-slot="right" data-step-hours="-1">-1 hour</button>
+              <button type="button" data-step-slot="right" data-step-hours="1">+1 hour</button>
             </div>
-            <div class="clock-face-wrap" data-face="berlin"></div>
+            <div class="clock-face-wrap" data-face="right"></div>
           </article>
         </div>
+        <datalist id="cityOptions"></datalist>
       </section>
     </main>
 

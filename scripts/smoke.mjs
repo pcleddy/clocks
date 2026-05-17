@@ -118,12 +118,21 @@ function createHarness() {
 function createTimezoneHarness() {
   const elements = new Map();
   const selectors = [
-    "#albuquerqueInput",
-    "#berlinInput",
-    '[data-value="albuquerque"]',
-    '[data-value="berlin"]',
-    '[data-face="albuquerque"]',
-    '[data-face="berlin"]',
+    "#leftCitySearch",
+    "#rightCitySearch",
+    "#leftTimeInput",
+    "#rightTimeInput",
+    '[data-title="left"]',
+    '[data-title="right"]',
+    '[data-subtitle="left"]',
+    '[data-subtitle="right"]',
+    '[data-time-label="left"]',
+    '[data-time-label="right"]',
+    '[data-value="left"]',
+    '[data-value="right"]',
+    '[data-face="left"]',
+    '[data-face="right"]',
+    "#cityOptions",
     "#matchStamp",
     "#useCurrentTime",
     "[data-step-hours]",
@@ -134,10 +143,10 @@ function createTimezoneHarness() {
   });
 
   const stepButtons = [
-    new FakeElement('[data-step-city="albuquerque"][data-step-hours="-1"]'),
-    new FakeElement('[data-step-city="albuquerque"][data-step-hours="1"]'),
-    new FakeElement('[data-step-city="berlin"][data-step-hours="-1"]'),
-    new FakeElement('[data-step-city="berlin"][data-step-hours="1"]'),
+    new FakeElement('[data-step-slot="left"][data-step-hours="-1"]'),
+    new FakeElement('[data-step-slot="left"][data-step-hours="1"]'),
+    new FakeElement('[data-step-slot="right"][data-step-hours="-1"]'),
+    new FakeElement('[data-step-slot="right"][data-step-hours="1"]'),
   ];
   stepButtons.forEach((button, index) => {
     button.dataset.stepHours = index % 2 === 0 ? "-1" : "1";
@@ -182,6 +191,7 @@ async function smokeStaticFiles() {
   assert.match(html, /href="timezone\.html"/);
   assert.match(timezoneHtml, /href="index\.html"/);
   assert.match(timezoneHtml, /<script src="timezone\.js"><\/script>/);
+  assert.match(timezoneHtml, /list="cityOptions"/);
   assert.match(css, /\.clock-face/);
   assert.match(css, /\.site-nav/);
   assert.match(css, /\.hand-coarse/);
@@ -234,34 +244,50 @@ async function smokeTimezoneHarness() {
   vm.createContext(harness.context);
   vm.runInContext(script, harness.context, { filename: "timezone.js" });
 
-  const albuquerqueInput = harness.elements.get("#albuquerqueInput");
-  const berlinInput = harness.elements.get("#berlinInput");
-  const albuquerqueValue = harness.elements.get('[data-value="albuquerque"]');
-  const berlinValue = harness.elements.get('[data-value="berlin"]');
-  const albuquerqueFace = harness.elements.get('[data-face="albuquerque"]');
-  const berlinFace = harness.elements.get('[data-face="berlin"]');
-  const berlinPlusHour = harness.stepButtons[3];
+  const leftSearch = harness.elements.get("#leftCitySearch");
+  const rightSearch = harness.elements.get("#rightCitySearch");
+  const leftInput = harness.elements.get("#leftTimeInput");
+  const rightInput = harness.elements.get("#rightTimeInput");
+  const leftValue = harness.elements.get('[data-value="left"]');
+  const rightValue = harness.elements.get('[data-value="right"]');
+  const leftTitle = harness.elements.get('[data-title="left"]');
+  const rightTitle = harness.elements.get('[data-title="right"]');
+  const leftFace = harness.elements.get('[data-face="left"]');
+  const rightFace = harness.elements.get('[data-face="right"]');
+  const cityOptions = harness.elements.get("#cityOptions");
+  const rightPlusHour = harness.stepButtons[3];
 
-  assert.match(albuquerqueInput.value, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
-  assert.match(berlinInput.value, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
-  assert.match(albuquerqueValue.textContent, /^\d{2}:\d{2}$/);
-  assert.match(berlinValue.textContent, /^\d{2}:\d{2}$/);
-  assert.match(albuquerqueFace.innerHTML, /<svg class="clock-face"/);
-  assert.match(berlinFace.innerHTML, /<svg class="clock-face"/);
+  assert.match(leftInput.value, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+  assert.match(rightInput.value, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+  assert.equal(leftSearch.value, "Albuquerque, United States");
+  assert.equal(rightSearch.value, "Berlin, Germany");
+  assert.equal(leftTitle.textContent, "Albuquerque");
+  assert.equal(rightTitle.textContent, "Berlin");
+  assert.match(leftValue.textContent, /^\d{2}:\d{2}$/);
+  assert.match(rightValue.textContent, /^\d{2}:\d{2}$/);
+  assert.match(leftFace.innerHTML, /<svg class="clock-face"/);
+  assert.match(rightFace.innerHTML, /<svg class="clock-face"/);
+  assert.equal((cityOptions.innerHTML.match(/<option /g) || []).length, 50);
 
-  albuquerqueInput.value = "2026-05-17T12:00";
-  albuquerqueInput.dispatch("change");
-  assert.equal(albuquerqueValue.textContent, "12:00");
-  assert.equal(berlinValue.textContent, "20:00");
+  leftInput.value = "2026-05-17T12:00";
+  leftInput.dispatch("change");
+  assert.equal(leftValue.textContent, "12:00");
+  assert.equal(rightValue.textContent, "20:00");
 
-  berlinInput.value = "2026-05-17T09:30";
-  berlinInput.dispatch("change");
-  assert.equal(berlinValue.textContent, "09:30");
-  assert.equal(albuquerqueValue.textContent, "01:30");
+  rightInput.value = "2026-05-17T09:30";
+  rightInput.dispatch("change");
+  assert.equal(rightValue.textContent, "09:30");
+  assert.equal(leftValue.textContent, "01:30");
 
-  berlinPlusHour.dispatch("click");
-  assert.equal(berlinValue.textContent, "10:30");
-  assert.equal(albuquerqueValue.textContent, "02:30");
+  rightPlusHour.dispatch("click");
+  assert.equal(rightValue.textContent, "10:30");
+  assert.equal(leftValue.textContent, "02:30");
+
+  leftSearch.value = "Tokyo, Japan";
+  leftSearch.dispatch("change");
+  assert.equal(leftTitle.textContent, "Tokyo");
+  assert.equal(leftValue.textContent, "17:30");
+  assert.equal(rightValue.textContent, "10:30");
 }
 
 function contentType(pathname) {
