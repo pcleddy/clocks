@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Albuquerque and Berlin Clocks</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="masthead">
+        <div>
+          <p class="eyebrow">Matched city time</p>
+          <h1>Albuquerque / Berlin</h1>
+        </div>
+        <div class="header-tools">
+          <nav class="site-nav" aria-label="Pages">
+            <a href="index.html">Scales</a>
+            <a href="timezone.html" aria-current="page">Cities</a>
+          </nav>
+          <time id="matchStamp" datetime=""></time>
+        </div>
+      </header>
+
+      <section aria-labelledby="timezoneTitle">
+        <div class="section-heading">
+          <h2 id="timezoneTitle">24-Hour Match</h2>
+          <button id="useCurrentTime" class="plain-button" type="button">Use current time</button>
+        </div>
+        <div class="clock-grid timezone-grid">
+          <article class="clock-card city-clock" data-city="albuquerque">
+            <div class="clock-top">
+              <div>
+                <h3 class="clock-title">Albuquerque</h3>
+                <p class="clock-subtitle">Mountain time</p>
+              </div>
+              <p class="clock-value" data-value="albuquerque"></p>
+            </div>
+            <label class="time-control">
+              <span>Set Albuquerque time</span>
+              <input id="albuquerqueInput" type="datetime-local" step="60">
+            </label>
+            <div class="time-stepper" aria-label="Adjust Albuquerque time by hour">
+              <button type="button" data-step-city="albuquerque" data-step-hours="-1">-1 hour</button>
+              <button type="button" data-step-city="albuquerque" data-step-hours="1">+1 hour</button>
+            </div>
+            <div class="clock-face-wrap" data-face="albuquerque"></div>
+          </article>
+
+          <article class="clock-card city-clock" data-city="berlin">
+            <div class="clock-top">
+              <div>
+                <h3 class="clock-title">Berlin</h3>
+                <p class="clock-subtitle">Central European time</p>
+              </div>
+              <p class="clock-value" data-value="berlin"></p>
+            </div>
+            <label class="time-control">
+              <span>Set Berlin time</span>
+              <input id="berlinInput" type="datetime-local" step="60">
+            </label>
+            <div class="time-stepper" aria-label="Adjust Berlin time by hour">
+              <button type="button" data-step-city="berlin" data-step-hours="-1">-1 hour</button>
+              <button type="button" data-step-city="berlin" data-step-hours="1">+1 hour</button>
+            </div>
+            <div class="clock-face-wrap" data-face="berlin"></div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <script src="timezone.js"></script>
+  </body>
+</html>

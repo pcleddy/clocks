@@ -24,6 +24,7 @@ class FakeElement {
     this._textContent = "";
     this.value = "";
     this.dateTime = "";
+    this.dataset = {};
   }
 
   append(child) {
@@ -114,16 +115,79 @@ function createHarness() {
   };
 }
 
+function createTimezoneHarness() {
+  const elements = new Map();
+  const selectors = [
+    "#albuquerqueInput",
+    "#berlinInput",
+    '[data-value="albuquerque"]',
+    '[data-value="berlin"]',
+    '[data-face="albuquerque"]',
+    '[data-face="berlin"]',
+    "#matchStamp",
+    "#useCurrentTime",
+    "[data-step-hours]",
+  ];
+
+  selectors.forEach((selector) => {
+    elements.set(selector, new FakeElement(selector));
+  });
+
+  const stepButtons = [
+    new FakeElement('[data-step-city="albuquerque"][data-step-hours="-1"]'),
+    new FakeElement('[data-step-city="albuquerque"][data-step-hours="1"]'),
+    new FakeElement('[data-step-city="berlin"][data-step-hours="-1"]'),
+    new FakeElement('[data-step-city="berlin"][data-step-hours="1"]'),
+  ];
+  stepButtons.forEach((button, index) => {
+    button.dataset.stepHours = index % 2 === 0 ? "-1" : "1";
+  });
+
+  return {
+    context: {
+      console,
+      Date,
+      Intl,
+      Math,
+      Number,
+      Object,
+      String,
+      Array,
+      document: {
+        querySelector(selector) {
+          const element = elements.get(selector);
+          assert.ok(element, `unexpected selector: ${selector}`);
+          return element;
+        },
+        querySelectorAll(selector) {
+          if (selector === "[data-step-hours]") return stepButtons;
+          assert.fail(`unexpected selector: ${selector}`);
+        },
+      },
+    },
+    elements,
+    stepButtons,
+  };
+}
+
 async function smokeStaticFiles() {
   const html = await readFile(join(root, "index.html"), "utf8");
+  const timezoneHtml = await readFile(join(root, "timezone.html"), "utf8");
   const css = await readFile(join(root, "styles.css"), "utf8");
   const js = await readFile(join(root, "script.js"), "utf8");
+  const timezoneJs = await readFile(join(root, "timezone.js"), "utf8");
 
   assert.match(html, /<link rel="stylesheet" href="styles\.css">/);
   assert.match(html, /<script src="script\.js"><\/script>/);
+  assert.match(html, /href="timezone\.html"/);
+  assert.match(timezoneHtml, /href="index\.html"/);
+  assert.match(timezoneHtml, /<script src="timezone\.js"><\/script>/);
   assert.match(css, /\.clock-face/);
+  assert.match(css, /\.site-nav/);
   assert.match(css, /\.hand-coarse/);
   assert.match(js, /setInterval\(render, 1000\)/);
+  assert.match(timezoneJs, /America\/Denver/);
+  assert.match(timezoneJs, /Europe\/Berlin/);
 }
 
 async function smokeRenderHarness() {
@@ -164,6 +228,42 @@ async function smokeRenderHarness() {
   assert.match(harness.localStorage.get("clocks.birthdate"), /^\d{4}-\d{2}-\d{2}$/);
 }
 
+async function smokeTimezoneHarness() {
+  const script = await readFile(join(root, "timezone.js"), "utf8");
+  const harness = createTimezoneHarness();
+  vm.createContext(harness.context);
+  vm.runInContext(script, harness.context, { filename: "timezone.js" });
+
+  const albuquerqueInput = harness.elements.get("#albuquerqueInput");
+  const berlinInput = harness.elements.get("#berlinInput");
+  const albuquerqueValue = harness.elements.get('[data-value="albuquerque"]');
+  const berlinValue = harness.elements.get('[data-value="berlin"]');
+  const albuquerqueFace = harness.elements.get('[data-face="albuquerque"]');
+  const berlinFace = harness.elements.get('[data-face="berlin"]');
+  const berlinPlusHour = harness.stepButtons[3];
+
+  assert.match(albuquerqueInput.value, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+  assert.match(berlinInput.value, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
+  assert.match(albuquerqueValue.textContent, /^\d{2}:\d{2}$/);
+  assert.match(berlinValue.textContent, /^\d{2}:\d{2}$/);
+  assert.match(albuquerqueFace.innerHTML, /<svg class="clock-face"/);
+  assert.match(berlinFace.innerHTML, /<svg class="clock-face"/);
+
+  albuquerqueInput.value = "2026-05-17T12:00";
+  albuquerqueInput.dispatch("change");
+  assert.equal(albuquerqueValue.textContent, "12:00");
+  assert.equal(berlinValue.textContent, "20:00");
+
+  berlinInput.value = "2026-05-17T09:30";
+  berlinInput.dispatch("change");
+  assert.equal(berlinValue.textContent, "09:30");
+  assert.equal(albuquerqueValue.textContent, "01:30");
+
+  berlinPlusHour.dispatch("click");
+  assert.equal(berlinValue.textContent, "10:30");
+  assert.equal(albuquerqueValue.textContent, "02:30");
+}
+
 function contentType(pathname) {
   switch (extname(pathname)) {
     case ".css":
@@ -180,7 +280,7 @@ async function smokeHttpServer() {
   const server = createServer(async (request, response) => {
     const url = new URL(request.url, "http://127.0.0.1");
     const name = basename(url.pathname === "/" ? "index.html" : url.pathname);
-    const allowed = new Set(["index.html", "styles.css", "script.js"]);
+    const allowed = new Set(["index.html", "timezone.html", "styles.css", "script.js", "timezone.js"]);
 
     if (!allowed.has(name)) {
       response.writeHead(404);
@@ -197,7 +297,7 @@ async function smokeHttpServer() {
   const { port } = server.address();
 
   try {
-    for (const path of ["/", "/styles.css", "/script.js"]) {
+    for (const path of ["/", "/timezone.html", "/styles.css", "/script.js", "/timezone.js"]) {
       const response = await fetch(`http://127.0.0.1:${port}${path}`);
       assert.equal(response.status, 200, `${path} should load`);
       const text = await response.text();
@@ -210,6 +310,7 @@ async function smokeHttpServer() {
 
 await smokeStaticFiles();
 await smokeRenderHarness();
+await smokeTimezoneHarness();
 await smokeHttpServer();
 
 console.log("smoke: ok");

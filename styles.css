@@ -46,6 +46,43 @@ body {
   border-bottom: 1px solid var(--line);
 }
 
+.masthead > div:first-child {
+  min-width: 0;
+}
+
+.header-tools {
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px;
+  border: 1px solid rgba(80, 70, 54, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 253, 248, 0.72);
+}
+
+.site-nav a {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.site-nav a[aria-current="page"] {
+  color: #fffdf8;
+  background: var(--teal);
+}
+
 .eyebrow {
   margin: 0 0 6px;
   color: var(--teal);
@@ -66,6 +103,7 @@ h1 {
   font-size: clamp(3rem, 8vw, 7rem);
   font-weight: 500;
   line-height: 0.88;
+  overflow-wrap: break-word;
 }
 
 h2 {
@@ -74,7 +112,7 @@ h2 {
   font-weight: 500;
 }
 
-#nowStamp {
+.header-tools time {
   flex: 0 0 auto;
   color: var(--muted);
   font-variant-numeric: tabular-nums;
@@ -114,6 +152,10 @@ section {
 
 .decimal-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.timezone-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .clock-card {
@@ -341,6 +383,67 @@ select {
   font-weight: 700;
 }
 
+input,
+button {
+  font: inherit;
+}
+
+.plain-button {
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid rgba(80, 70, 54, 0.36);
+  border-radius: 6px;
+  color: var(--ink);
+  background: #fffdf8;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.time-control {
+  display: grid;
+  gap: 6px;
+  margin: 2px 0 10px;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.time-control input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid rgba(80, 70, 54, 0.36);
+  border-radius: 6px;
+  color: var(--ink);
+  background: #fffdf8;
+  font-weight: 750;
+  text-transform: none;
+}
+
+.time-stepper {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.time-stepper button {
+  min-height: 38px;
+  border: 1px solid rgba(80, 70, 54, 0.36);
+  border-radius: 6px;
+  color: var(--ink);
+  background: #fffdf8;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.time-stepper button:hover,
+.plain-button:hover {
+  border-color: rgba(29, 122, 121, 0.58);
+  background: rgba(29, 122, 121, 0.08);
+}
+
 .message {
   min-height: 22px;
   margin: -8px 4px 14px;
@@ -371,13 +474,18 @@ select {
     align-items: start;
   }
 
-  #nowStamp {
+  .header-tools {
+    justify-items: start;
+  }
+
+  .header-tools time {
     text-align: left;
   }
 
   .calendar-grid,
   .personal-grid,
-  .decimal-grid {
+  .decimal-grid,
+  .timezone-grid {
     grid-template-columns: 1fr;
   }
 
