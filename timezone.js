@@ -319,13 +319,13 @@ function renderClock(clock) {
         <span>Set ${escapeHtml(city.name)} time</span>
         <input data-action="time" data-clock-id="${clock.id}" value="${zonedPartsToDateTimeLocal(parts)}" type="datetime-local" step="60">
       </label>
-      <div class="time-stepper" aria-label="Adjust ${escapeHtml(city.name)} time">
-        <button type="button" data-action="step" data-clock-id="${clock.id}" data-step-hours="-1">-1 hour</button>
-        <button type="button" data-action="zero" data-clock-id="${clock.id}">:00</button>
-        <button type="button" data-action="step" data-clock-id="${clock.id}" data-step-hours="1">+1 hour</button>
-      </div>
       ${canRemove ? `<button class="remove-clock" type="button" data-action="remove" data-clock-id="${clock.id}">Remove clock</button>` : ""}
       <div class="clock-face-wrap">${renderFace(parts, city.name)}</div>
+      <div class="time-stepper" aria-label="Adjust ${escapeHtml(city.name)} time">
+        <button type="button" data-action="step" data-clock-id="${clock.id}" data-step-hours="-1">-1 hr</button>
+        <button type="button" data-action="zero" data-clock-id="${clock.id}">:00</button>
+        <button type="button" data-action="step" data-clock-id="${clock.id}" data-step-hours="1">+1 hr</button>
+      </div>
     </article>
   `;
 }

@@ -175,7 +175,7 @@ section {
 }
 
 .city-clock .clock-face-wrap {
-  width: min(100%, 240px);
+  width: min(100%, 312px);
 }
 
 .clock-card {
@@ -409,12 +409,13 @@ button {
 }
 
 .plain-button {
-  min-height: 38px;
-  padding: 0 14px;
+  min-height: 34px;
+  padding: 0 11px;
   border: 1px solid rgba(80, 70, 54, 0.36);
   border-radius: 6px;
   color: var(--ink);
   background: #fffdf8;
+  font-size: 0.9rem;
   font-weight: 800;
   cursor: pointer;
 }
@@ -435,15 +436,24 @@ button {
   text-transform: uppercase;
 }
 
+.city-clock .city-picker,
+.city-clock .time-control {
+  min-width: 0;
+  margin-bottom: 0;
+  font-size: 0.68rem;
+}
+
 .city-picker input,
 .time-control input {
   width: 100%;
-  min-height: 42px;
-  padding: 0 12px;
+  min-width: 0;
+  min-height: 38px;
+  padding: 0 10px;
   border: 1px solid rgba(80, 70, 54, 0.36);
   border-radius: 6px;
   color: var(--ink);
   background: #fffdf8;
+  font-size: 0.9rem;
   font-weight: 750;
   text-transform: none;
 }
@@ -451,16 +461,43 @@ button {
 .time-stepper {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  gap: 6px;
   margin-bottom: 16px;
 }
 
+.city-clock .time-stepper {
+  align-self: end;
+  margin-bottom: 0;
+}
+
+.city-clock .city-picker,
+.city-clock .time-control,
+.city-clock .time-stepper {
+  display: inline-grid;
+  vertical-align: end;
+}
+
+.city-clock {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 10px;
+  overflow: hidden;
+}
+
+.city-clock .clock-top,
+.city-clock .remove-clock,
+.city-clock .clock-face-wrap,
+.city-clock .time-stepper {
+  grid-column: 1 / -1;
+}
+
 .time-stepper button {
-  min-height: 38px;
+  min-height: 31px;
   border: 1px solid rgba(80, 70, 54, 0.36);
   border-radius: 6px;
   color: var(--ink);
   background: #fffdf8;
+  font-size: 0.82rem;
   font-weight: 850;
   cursor: pointer;
 }
@@ -474,12 +511,13 @@ button {
 
 .remove-clock {
   width: 100%;
-  min-height: 36px;
+  min-height: 32px;
   margin: -6px 0 16px;
   border: 1px solid rgba(183, 73, 66, 0.32);
   border-radius: 6px;
   color: var(--red);
   background: #fffdf8;
+  font-size: 0.9rem;
   font-weight: 800;
   cursor: pointer;
 }
@@ -600,6 +638,16 @@ button {
   .decimal-grid,
   .timezone-grid {
     grid-template-columns: 1fr;
+  }
+
+  .city-clock {
+    grid-template-columns: 1fr;
+  }
+
+  .city-clock .clock-top,
+  .city-clock .remove-clock,
+  .city-clock .clock-face-wrap {
+    grid-column: auto;
   }
 
   .digital-grid {
