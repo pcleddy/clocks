@@ -25,6 +25,7 @@ class FakeElement {
     this.value = "";
     this.dateTime = "";
     this.dataset = {};
+    this.disabled = false;
   }
 
   append(child) {
@@ -38,8 +39,8 @@ class FakeElement {
     this.listeners.set(type, listener);
   }
 
-  dispatch(type) {
-    this.listeners.get(type)?.({ target: this });
+  dispatch(type, event = {}) {
+    this.listeners.get(type)?.({ target: this, ...event });
   }
 
   set innerHTML(value) {
@@ -118,38 +119,18 @@ function createHarness() {
 function createTimezoneHarness() {
   const elements = new Map();
   const selectors = [
-    "#leftCitySearch",
-    "#rightCitySearch",
-    "#leftTimeInput",
-    "#rightTimeInput",
-    '[data-title="left"]',
-    '[data-title="right"]',
-    '[data-subtitle="left"]',
-    '[data-subtitle="right"]',
-    '[data-time-label="left"]',
-    '[data-time-label="right"]',
-    '[data-value="left"]',
-    '[data-value="right"]',
-    '[data-face="left"]',
-    '[data-face="right"]',
+    "#cityClocks",
+    "#digitalClocks",
     "#cityOptions",
     "#matchStamp",
     "#useCurrentTime",
-    "[data-step-hours]",
+    "#addClock",
+    "#findMeetingTime",
+    "#meetingMessage",
   ];
 
   selectors.forEach((selector) => {
     elements.set(selector, new FakeElement(selector));
-  });
-
-  const stepButtons = [
-    new FakeElement('[data-step-slot="left"][data-step-hours="-1"]'),
-    new FakeElement('[data-step-slot="left"][data-step-hours="1"]'),
-    new FakeElement('[data-step-slot="right"][data-step-hours="-1"]'),
-    new FakeElement('[data-step-slot="right"][data-step-hours="1"]'),
-  ];
-  stepButtons.forEach((button, index) => {
-    button.dataset.stepHours = index % 2 === 0 ? "-1" : "1";
   });
 
   return {
@@ -168,15 +149,38 @@ function createTimezoneHarness() {
           assert.ok(element, `unexpected selector: ${selector}`);
           return element;
         },
-        querySelectorAll(selector) {
-          if (selector === "[data-step-hours]") return stepButtons;
-          assert.fail(`unexpected selector: ${selector}`);
-        },
       },
     },
     elements,
-    stepButtons,
   };
+}
+
+function clockIds(html) {
+  return [...new Set([...html.matchAll(/data-clock-id="([^"]+)"/g)].map((match) => match[1]))];
+}
+
+function cityCard(html, cityName) {
+  const index = html.indexOf(`<h3 class="clock-title">${cityName}</h3>`);
+  assert.notEqual(index, -1, `${cityName} card should render`);
+  const next = html.indexOf("</article>", index);
+  return html.slice(index, next);
+}
+
+function clockValue(html, cityName) {
+  const card = cityCard(html, cityName);
+  const match = card.match(/<p class="clock-value">(\d{2}:\d{2})<\/p>/);
+  assert.ok(match, `${cityName} should have a clock value`);
+  return match[1];
+}
+
+function digitalValue(html, cityName) {
+  const index = html.indexOf(`<span class="digital-city">${cityName}</span>`);
+  assert.notEqual(index, -1, `${cityName} digital clock should render`);
+  const next = html.indexOf("</article>", index);
+  const card = html.slice(index, next);
+  const match = card.match(/<span class="digital-time">(\d{2}:\d{2})<\/span>/);
+  assert.ok(match, `${cityName} should have a digital time`);
+  return match[1];
 }
 
 async function smokeStaticFiles() {
@@ -191,8 +195,10 @@ async function smokeStaticFiles() {
   assert.match(html, /href="timezone\.html"/);
   assert.match(timezoneHtml, /href="index\.html"/);
   assert.match(timezoneHtml, /<script src="timezone\.js"><\/script>/);
-  assert.match(timezoneHtml, /list="cityOptions"/);
-  assert.match(timezoneHtml, /Search 50 major cities/);
+  assert.match(timezoneHtml, /id="cityClocks"/);
+  assert.match(timezoneHtml, /id="digitalClocks"/);
+  assert.match(timezoneHtml, /id="addClock"/);
+  assert.match(timezoneHtml, /Find shared waking time/);
   assert.match(css, /\.clock-face/);
   assert.match(css, /\.site-nav/);
   assert.match(css, /\.hand-coarse/);
@@ -245,50 +251,106 @@ async function smokeTimezoneHarness() {
   vm.createContext(harness.context);
   vm.runInContext(script, harness.context, { filename: "timezone.js" });
 
-  const leftSearch = harness.elements.get("#leftCitySearch");
-  const rightSearch = harness.elements.get("#rightCitySearch");
-  const leftInput = harness.elements.get("#leftTimeInput");
-  const rightInput = harness.elements.get("#rightTimeInput");
-  const leftValue = harness.elements.get('[data-value="left"]');
-  const rightValue = harness.elements.get('[data-value="right"]');
-  const leftTitle = harness.elements.get('[data-title="left"]');
-  const rightTitle = harness.elements.get('[data-title="right"]');
-  const leftFace = harness.elements.get('[data-face="left"]');
-  const rightFace = harness.elements.get('[data-face="right"]');
+  const cityClocks = harness.elements.get("#cityClocks");
+  const digitalClocks = harness.elements.get("#digitalClocks");
   const cityOptions = harness.elements.get("#cityOptions");
-  const rightPlusHour = harness.stepButtons[3];
+  const addClock = harness.elements.get("#addClock");
+  const findMeetingTime = harness.elements.get("#findMeetingTime");
+  const meetingMessage = harness.elements.get("#meetingMessage");
 
-  assert.match(leftInput.value, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
-  assert.match(rightInput.value, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
-  assert.equal(leftSearch.value, "Albuquerque, United States");
-  assert.equal(rightSearch.value, "Berlin, Germany");
-  assert.equal(leftTitle.textContent, "Albuquerque");
-  assert.equal(rightTitle.textContent, "Berlin");
-  assert.match(leftValue.textContent, /^\d{2}:\d{2}$/);
-  assert.match(rightValue.textContent, /^\d{2}:\d{2}$/);
-  assert.match(leftFace.innerHTML, /<svg class="clock-face"/);
-  assert.match(rightFace.innerHTML, /<svg class="clock-face"/);
+  assert.equal((cityClocks.innerHTML.match(/class="clock-card city-clock"/g) || []).length, 2);
+  assert.match(cityClocks.innerHTML, /Albuquerque/);
+  assert.match(cityClocks.innerHTML, /Berlin/);
+  assert.match(cityClocks.innerHTML, /<svg class="clock-face"/);
+  assert.equal((digitalClocks.innerHTML.match(/class="digital-clock"/g) || []).length, 2);
+  assert.match(cityClocks.innerHTML, /Search 50 major cities/);
   assert.equal((cityOptions.innerHTML.match(/<option /g) || []).length, 50);
+  assert.equal(addClock.disabled, false);
 
-  leftInput.value = "2026-05-17T12:00";
-  leftInput.dispatch("change");
-  assert.equal(leftValue.textContent, "12:00");
-  assert.equal(rightValue.textContent, "20:00");
+  let [firstId, secondId] = clockIds(cityClocks.innerHTML);
 
-  rightInput.value = "2026-05-17T09:30";
-  rightInput.dispatch("change");
-  assert.equal(rightValue.textContent, "09:30");
-  assert.equal(leftValue.textContent, "01:30");
+  cityClocks.dispatch("change", {
+    target: {
+      value: "2026-05-17T12:00",
+      dataset: { action: "time", clockId: firstId },
+    },
+  });
+  assert.equal(clockValue(cityClocks.innerHTML, "Albuquerque"), "12:00");
+  assert.equal(clockValue(cityClocks.innerHTML, "Berlin"), "20:00");
+  assert.equal(digitalValue(digitalClocks.innerHTML, "Albuquerque"), "12:00");
+  assert.equal(digitalValue(digitalClocks.innerHTML, "Berlin"), "20:00");
 
-  rightPlusHour.dispatch("click");
-  assert.equal(rightValue.textContent, "10:30");
-  assert.equal(leftValue.textContent, "02:30");
+  cityClocks.dispatch("change", {
+    target: {
+      value: "2026-05-17T09:30",
+      dataset: { action: "time", clockId: secondId },
+    },
+  });
+  assert.equal(clockValue(cityClocks.innerHTML, "Berlin"), "09:30");
+  assert.equal(clockValue(cityClocks.innerHTML, "Albuquerque"), "01:30");
 
-  leftSearch.value = "Tokyo, Japan";
-  leftSearch.dispatch("change");
-  assert.equal(leftTitle.textContent, "Tokyo");
-  assert.equal(leftValue.textContent, "17:30");
-  assert.equal(rightValue.textContent, "10:30");
+  cityClocks.dispatch("click", {
+    target: {
+      dataset: { action: "step", clockId: secondId, stepHours: "1" },
+    },
+  });
+  assert.equal(clockValue(cityClocks.innerHTML, "Berlin"), "10:30");
+  assert.equal(clockValue(cityClocks.innerHTML, "Albuquerque"), "02:30");
+
+  cityClocks.dispatch("change", {
+    target: {
+      value: "Tokyo, Japan",
+      dataset: { action: "city", clockId: firstId },
+    },
+  });
+  assert.match(cityClocks.innerHTML, /Tokyo/);
+  assert.equal(clockValue(cityClocks.innerHTML, "Tokyo"), "17:30");
+  assert.equal(clockValue(cityClocks.innerHTML, "Berlin"), "10:30");
+
+  cityClocks.dispatch("click", {
+    target: {
+      dataset: { action: "zero", clockId: firstId },
+    },
+  });
+  assert.equal(clockValue(cityClocks.innerHTML, "Tokyo"), "17:00");
+  assert.equal(clockValue(cityClocks.innerHTML, "Berlin"), "10:00");
+  assert.equal(digitalValue(digitalClocks.innerHTML, "Tokyo"), "17:00");
+
+  findMeetingTime.dispatch("click");
+  assert.equal(clockValue(cityClocks.innerHTML, "Tokyo"), "18:00");
+  assert.equal(clockValue(cityClocks.innerHTML, "Berlin"), "11:00");
+  assert.match(meetingMessage.textContent, /Found the next hour/);
+  assert.equal(meetingMessage.className, "meeting-status success");
+
+  findMeetingTime.dispatch("click");
+  assert.equal(clockValue(cityClocks.innerHTML, "Tokyo"), "19:00");
+  assert.equal(clockValue(cityClocks.innerHTML, "Berlin"), "12:00");
+
+  addClock.dispatch("click");
+  assert.equal((cityClocks.innerHTML.match(/class="clock-card city-clock"/g) || []).length, 3);
+  assert.equal((digitalClocks.innerHTML.match(/class="digital-clock"/g) || []).length, 3);
+  assert.match(cityClocks.innerHTML, /Remove clock/);
+  assert.equal(addClock.disabled, false);
+
+  findMeetingTime.dispatch("click");
+  assert.equal(meetingMessage.textContent, "No shared waking overlap for these cities.");
+  assert.equal(meetingMessage.className, "meeting-status error");
+
+  addClock.dispatch("click");
+  assert.equal((cityClocks.innerHTML.match(/class="clock-card city-clock"/g) || []).length, 4);
+  assert.equal(addClock.disabled, true);
+
+  addClock.dispatch("click");
+  assert.equal((cityClocks.innerHTML.match(/class="clock-card city-clock"/g) || []).length, 4);
+
+  const thirdId = clockIds(cityClocks.innerHTML)[2];
+  cityClocks.dispatch("click", {
+    target: {
+      dataset: { action: "remove", clockId: thirdId },
+    },
+  });
+  assert.equal((cityClocks.innerHTML.match(/class="clock-card city-clock"/g) || []).length, 3);
+  assert.equal(addClock.disabled, false);
 }
 
 function contentType(pathname) {

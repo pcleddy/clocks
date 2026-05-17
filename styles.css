@@ -133,6 +133,13 @@ section {
   padding-inline: 4px;
 }
 
+.section-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .personal-heading {
   align-items: center;
 }
@@ -155,7 +162,20 @@ section {
 }
 
 .timezone-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.city-clock {
+  padding: 14px;
+}
+
+.city-clock .clock-top {
+  min-height: 52px;
+  margin-bottom: 8px;
+}
+
+.city-clock .clock-face-wrap {
+  width: min(100%, 240px);
 }
 
 .clock-card {
@@ -399,6 +419,11 @@ button {
   cursor: pointer;
 }
 
+.plain-button:disabled {
+  cursor: default;
+  opacity: 0.48;
+}
+
 .city-picker,
 .time-control {
   display: grid;
@@ -425,7 +450,7 @@ button {
 
 .time-stepper {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 16px;
 }
@@ -441,9 +466,67 @@ button {
 }
 
 .time-stepper button:hover,
-.plain-button:hover {
+.plain-button:not(:disabled):hover,
+.remove-clock:hover {
   border-color: rgba(29, 122, 121, 0.58);
   background: rgba(29, 122, 121, 0.08);
+}
+
+.remove-clock {
+  width: 100%;
+  min-height: 36px;
+  margin: -6px 0 16px;
+  border: 1px solid rgba(183, 73, 66, 0.32);
+  border-radius: 6px;
+  color: var(--red);
+  background: #fffdf8;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.digital-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 16px;
+}
+
+.digital-clock {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid rgba(80, 70, 54, 0.18);
+  border-radius: 6px;
+  background: rgba(255, 253, 248, 0.68);
+  font-variant-numeric: tabular-nums;
+}
+
+.digital-city {
+  display: block;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.digital-time {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: clamp(1.45rem, 3vw, 2.2rem);
+  font-weight: 850;
+  line-height: 1;
+}
+
+.digital-date {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
 .timezone-note {
@@ -451,6 +534,23 @@ button {
   color: var(--muted);
   font-size: 0.82rem;
   line-height: 1.35;
+}
+
+.meeting-status {
+  min-height: 20px;
+  margin: -8px 4px 14px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.meeting-status.success {
+  color: var(--teal);
+}
+
+.meeting-status.error {
+  color: var(--red);
 }
 
 .message {
@@ -483,6 +583,10 @@ button {
     align-items: start;
   }
 
+  .section-actions {
+    justify-content: start;
+  }
+
   .header-tools {
     justify-items: start;
   }
@@ -498,6 +602,10 @@ button {
     grid-template-columns: 1fr;
   }
 
+  .digital-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .birthday-form {
     justify-content: start;
   }
@@ -506,4 +614,5 @@ button {
   select {
     width: 100%;
   }
+
 }

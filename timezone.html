@@ -25,56 +25,16 @@
       <section aria-labelledby="timezoneTitle">
         <div class="section-heading">
           <h2 id="timezoneTitle">24-Hour Match</h2>
-          <button id="useCurrentTime" class="plain-button" type="button">Use current time</button>
+          <div class="section-actions">
+            <button id="findMeetingTime" class="plain-button" type="button">Find shared waking time</button>
+            <button id="addClock" class="plain-button" type="button">+ Clock</button>
+            <button id="useCurrentTime" class="plain-button" type="button">Use current time</button>
+          </div>
         </div>
-        <div class="clock-grid timezone-grid">
-          <article class="clock-card city-clock" data-slot="left">
-            <div class="clock-top">
-              <div>
-                <h3 class="clock-title" data-title="left"></h3>
-                <p class="clock-subtitle" data-subtitle="left"></p>
-              </div>
-              <p class="clock-value" data-value="left"></p>
-            </div>
-            <label class="city-picker">
-              <span>Search city</span>
-              <input id="leftCitySearch" list="cityOptions" autocomplete="off" spellcheck="false" placeholder="Search 50 major cities">
-            </label>
-            <label class="time-control">
-              <span data-time-label="left"></span>
-              <input id="leftTimeInput" type="datetime-local" step="60">
-            </label>
-            <div class="time-stepper" aria-label="Adjust left clock time by hour">
-              <button type="button" data-step-slot="left" data-step-hours="-1">-1 hour</button>
-              <button type="button" data-step-slot="left" data-step-hours="1">+1 hour</button>
-            </div>
-            <div class="clock-face-wrap" data-face="left"></div>
-          </article>
-
-          <article class="clock-card city-clock" data-slot="right">
-            <div class="clock-top">
-              <div>
-                <h3 class="clock-title" data-title="right"></h3>
-                <p class="clock-subtitle" data-subtitle="right"></p>
-              </div>
-              <p class="clock-value" data-value="right"></p>
-            </div>
-            <label class="city-picker">
-              <span>Search city</span>
-              <input id="rightCitySearch" list="cityOptions" autocomplete="off" spellcheck="false" placeholder="Search 50 major cities">
-            </label>
-            <label class="time-control">
-              <span data-time-label="right"></span>
-              <input id="rightTimeInput" type="datetime-local" step="60">
-            </label>
-            <div class="time-stepper" aria-label="Adjust right clock time by hour">
-              <button type="button" data-step-slot="right" data-step-hours="-1">-1 hour</button>
-              <button type="button" data-step-slot="right" data-step-hours="1">+1 hour</button>
-            </div>
-            <div class="clock-face-wrap" data-face="right"></div>
-          </article>
-        </div>
-        <p class="timezone-note">Search either city field to swap cities; the clocks keep the same matched instant.</p>
+        <p id="meetingMessage" class="meeting-status" role="status"></p>
+        <div id="digitalClocks" class="digital-grid" aria-label="Digital city times"></div>
+        <div id="cityClocks" class="clock-grid timezone-grid"></div>
+        <p class="timezone-note">Search any city field to swap cities; all clocks keep the same matched instant. Add up to 4 clocks.</p>
         <datalist id="cityOptions"></datalist>
       </section>
     </main>

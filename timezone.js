@@ -1,3 +1,9 @@
+const MIN_CLOCKS = 2;
+const MAX_CLOCKS = 4;
+const WAKING_START_HOUR = 8;
+const WAKING_END_HOUR = 22;
+const MEETING_SEARCH_HOURS = 24 * 14;
+
 const CITY_OPTIONS = [
   ["Albuquerque", "United States", "America/Denver"],
   ["Anchorage", "United States", "America/Anchorage"],
@@ -57,37 +63,37 @@ const CITY_OPTIONS = [
   label: `${name}, ${region}`,
 }));
 
+const defaultCityIds = [
+  "albuquerque-united-states",
+  "berlin-germany",
+  "tokyo-japan",
+  "new-york-united-states",
+];
+
 const cityById = new Map(CITY_OPTIONS.map((city) => [city.id, city]));
 const cityByLabel = new Map(CITY_OPTIONS.map((city) => [normalize(city.label), city]));
 
-const slots = {
-  left: {
-    selectedCityId: "albuquerque-united-states",
-    search: document.querySelector("#leftCitySearch"),
-    input: document.querySelector("#leftTimeInput"),
-    title: document.querySelector('[data-title="left"]'),
-    subtitle: document.querySelector('[data-subtitle="left"]'),
-    timeLabel: document.querySelector('[data-time-label="left"]'),
-    value: document.querySelector('[data-value="left"]'),
-    face: document.querySelector('[data-face="left"]'),
-  },
-  right: {
-    selectedCityId: "berlin-germany",
-    search: document.querySelector("#rightCitySearch"),
-    input: document.querySelector("#rightTimeInput"),
-    title: document.querySelector('[data-title="right"]'),
-    subtitle: document.querySelector('[data-subtitle="right"]'),
-    timeLabel: document.querySelector('[data-time-label="right"]'),
-    value: document.querySelector('[data-value="right"]'),
-    face: document.querySelector('[data-face="right"]'),
-  },
-};
-
+const cityClocks = document.querySelector("#cityClocks");
+const digitalClocks = document.querySelector("#digitalClocks");
 const cityOptions = document.querySelector("#cityOptions");
 const matchStamp = document.querySelector("#matchStamp");
 const currentButton = document.querySelector("#useCurrentTime");
-const stepButtons = document.querySelectorAll("[data-step-hours]");
+const addClockButton = document.querySelector("#addClock");
+const findMeetingButton = document.querySelector("#findMeetingTime");
+const meetingMessage = document.querySelector("#meetingMessage");
+
 let selectedInstant = new Date();
+let nextClockId = 1;
+let clocks = [
+  createClock("albuquerque-united-states"),
+  createClock("berlin-germany"),
+];
+
+function createClock(selectedCityId) {
+  const id = `clock-${nextClockId}`;
+  nextClockId += 1;
+  return { id, selectedCityId };
+}
 
 function normalize(value) {
   return value.trim().toLowerCase();
@@ -95,6 +101,14 @@ function normalize(value) {
 
 function pad(value) {
   return String(value).padStart(2, "0");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 function angleFor(progress) {
@@ -109,8 +123,22 @@ function pointAt(angleDegrees, radius) {
   };
 }
 
-function getSelectedCity(slot) {
-  return cityById.get(slot.selectedCityId) || CITY_OPTIONS[0];
+function getSelectedCity(clock) {
+  return cityById.get(clock.selectedCityId) || CITY_OPTIONS[0];
+}
+
+function findClock(clockId) {
+  return clocks.find((clock) => clock.id === clockId);
+}
+
+function nextDefaultCityId() {
+  const used = new Set(clocks.map((clock) => clock.selectedCityId));
+  return defaultCityIds.find((cityId) => !used.has(cityId)) || CITY_OPTIONS[0].id;
+}
+
+function clearMeetingMessage() {
+  meetingMessage.textContent = "";
+  meetingMessage.className = "meeting-status";
 }
 
 function getZonedParts(date, timeZone) {
@@ -145,6 +173,10 @@ function formatCityTime(parts) {
   return `${pad(parts.hour)}:${pad(parts.minute)}`;
 }
 
+function formatCityDate(parts) {
+  return `${parts.year}-${pad(parts.month)}-${pad(parts.day)}`;
+}
+
 function totalMinutes(parts) {
   return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute) / 60000;
 }
@@ -171,6 +203,34 @@ function instantFromZonedInput(value, timeZone) {
   }
 
   return instant;
+}
+
+function nextWholeHourAfter(date) {
+  const next = new Date(date);
+  next.setUTCMinutes(0, 0, 0);
+  if (next <= date) {
+    next.setTime(next.getTime() + 3600000);
+  }
+  return next;
+}
+
+function isWakingTime(date, timeZone) {
+  const { hour } = getZonedParts(date, timeZone);
+  return hour >= WAKING_START_HOUR && hour < WAKING_END_HOUR;
+}
+
+function findNextMeetingInstant() {
+  let candidate = nextWholeHourAfter(selectedInstant);
+
+  for (let i = 0; i < MEETING_SEARCH_HOURS; i += 1) {
+    const allWaking = clocks.every((clock) =>
+      isWakingTime(candidate, getSelectedCity(clock).timeZone)
+    );
+    if (allWaking) return candidate;
+    candidate = new Date(candidate.getTime() + 3600000);
+  }
+
+  return null;
 }
 
 function tickElements() {
@@ -221,7 +281,7 @@ function renderFace(parts, label) {
   const minuteProgress = (parts.minute + parts.second / 60) / 60;
 
   return `
-    <svg class="clock-face" viewBox="0 0 200 200" role="img" aria-label="${label}: ${formatCityTime(parts)}">
+    <svg class="clock-face" viewBox="0 0 200 200" role="img" aria-label="${escapeHtml(label)}: ${formatCityTime(parts)}">
       <circle class="dial-outer" cx="100" cy="100" r="92"></circle>
       <circle class="dial-inner" cx="100" cy="100" r="72"></circle>
       <circle class="ring-guide" cx="100" cy="100" r="45"></circle>
@@ -237,21 +297,116 @@ function renderFace(parts, label) {
   `;
 }
 
+function renderClock(clock) {
+  const city = getSelectedCity(clock);
+  const parts = getZonedParts(selectedInstant, city.timeZone);
+  const canRemove = clocks.length > MIN_CLOCKS;
+
+  return `
+    <article class="clock-card city-clock" data-clock-id="${clock.id}">
+      <div class="clock-top">
+        <div>
+          <h3 class="clock-title">${escapeHtml(city.name)}</h3>
+          <p class="clock-subtitle">${escapeHtml(city.region)} &middot; ${escapeHtml(city.timeZone)}</p>
+        </div>
+        <p class="clock-value">${formatCityTime(parts)}</p>
+      </div>
+      <label class="city-picker">
+        <span>Search city</span>
+        <input data-action="city" data-clock-id="${clock.id}" value="${escapeHtml(city.label)}" list="cityOptions" autocomplete="off" spellcheck="false" placeholder="Search 50 major cities">
+      </label>
+      <label class="time-control">
+        <span>Set ${escapeHtml(city.name)} time</span>
+        <input data-action="time" data-clock-id="${clock.id}" value="${zonedPartsToDateTimeLocal(parts)}" type="datetime-local" step="60">
+      </label>
+      <div class="time-stepper" aria-label="Adjust ${escapeHtml(city.name)} time">
+        <button type="button" data-action="step" data-clock-id="${clock.id}" data-step-hours="-1">-1 hour</button>
+        <button type="button" data-action="zero" data-clock-id="${clock.id}">:00</button>
+        <button type="button" data-action="step" data-clock-id="${clock.id}" data-step-hours="1">+1 hour</button>
+      </div>
+      ${canRemove ? `<button class="remove-clock" type="button" data-action="remove" data-clock-id="${clock.id}">Remove clock</button>` : ""}
+      <div class="clock-face-wrap">${renderFace(parts, city.name)}</div>
+    </article>
+  `;
+}
+
+function renderDigitalClock(clock) {
+  const city = getSelectedCity(clock);
+  const parts = getZonedParts(selectedInstant, city.timeZone);
+
+  return `
+    <article class="digital-clock" aria-label="${escapeHtml(city.name)} digital time">
+      <span class="digital-city">${escapeHtml(city.name)}</span>
+      <span class="digital-time">${formatCityTime(parts)}</span>
+      <span class="digital-date">${formatCityDate(parts)}</span>
+    </article>
+  `;
+}
+
 function populateCityOptions() {
   cityOptions.innerHTML = CITY_OPTIONS
-    .map((city) => `<option value="${city.label}"></option>`)
+    .map((city) => `<option value="${escapeHtml(city.label)}"></option>`)
     .join("");
 }
 
-function selectCity(slot, value) {
+function selectCity(clock, value) {
   const city = cityByLabel.get(normalize(value));
   if (!city) {
-    slot.search.value = getSelectedCity(slot).label;
+    render();
     return;
   }
 
-  slot.selectedCityId = city.id;
+  clearMeetingMessage();
+  clock.selectedCityId = city.id;
   render();
+}
+
+function updateFromClock(clock, value) {
+  const city = getSelectedCity(clock);
+  const instant = instantFromZonedInput(value, city.timeZone);
+  if (!instant) return;
+  clearMeetingMessage();
+  selectedInstant = instant;
+  render();
+}
+
+function zeroMinutes(clock) {
+  const city = getSelectedCity(clock);
+  const parts = getZonedParts(selectedInstant, city.timeZone);
+  const value = `${parts.year}-${pad(parts.month)}-${pad(parts.day)}T${pad(parts.hour)}:00`;
+  const instant = instantFromZonedInput(value, city.timeZone);
+  if (!instant) return;
+  clearMeetingMessage();
+  selectedInstant = instant;
+  render();
+}
+
+function addClock() {
+  if (clocks.length >= MAX_CLOCKS) return;
+  clearMeetingMessage();
+  clocks.push(createClock(nextDefaultCityId()));
+  render();
+}
+
+function removeClock(clockId) {
+  if (clocks.length <= MIN_CLOCKS) return;
+  clearMeetingMessage();
+  clocks = clocks.filter((clock) => clock.id !== clockId);
+  render();
+}
+
+function findMeetingTime() {
+  const instant = findNextMeetingInstant();
+  if (!instant) {
+    meetingMessage.textContent = "No shared waking overlap for these cities.";
+    meetingMessage.className = "meeting-status error";
+    return;
+  }
+
+  selectedInstant = instant;
+  render();
+  meetingMessage.textContent = "Found the next hour when every displayed city is awake.";
+  meetingMessage.className = "meeting-status success";
 }
 
 function render() {
@@ -265,50 +420,62 @@ function render() {
     minute: "2-digit",
   });
 
-  Object.values(slots).forEach((slot) => {
-    const city = getSelectedCity(slot);
-    const parts = getZonedParts(selectedInstant, city.timeZone);
-    slot.search.value = city.label;
-    slot.title.textContent = city.name;
-    slot.subtitle.textContent = `${city.region} · ${city.timeZone}`;
-    slot.timeLabel.textContent = `Set ${city.name} time`;
-    slot.input.value = zonedPartsToDateTimeLocal(parts);
-    slot.value.textContent = formatCityTime(parts);
-    slot.face.innerHTML = renderFace(parts, city.name);
-  });
+  cityClocks.innerHTML = clocks.map(renderClock).join("");
+  digitalClocks.innerHTML = clocks.map(renderDigitalClock).join("");
+  addClockButton.disabled = clocks.length >= MAX_CLOCKS;
 }
 
-function updateFromSlot(slot) {
-  const city = getSelectedCity(slot);
-  const instant = instantFromZonedInput(slot.input.value, city.timeZone);
-  if (!instant) return;
-  selectedInstant = instant;
-  render();
-}
+cityClocks.addEventListener("change", (event) => {
+  const action = event.target?.dataset?.action;
+  const clock = findClock(event.target?.dataset?.clockId);
+  if (!clock) return;
 
-Object.values(slots).forEach((slot) => {
-  slot.input.addEventListener("change", () => updateFromSlot(slot));
-  slot.search.addEventListener("change", () => selectCity(slot, slot.search.value));
-  slot.search.addEventListener("input", () => {
-    if (cityByLabel.has(normalize(slot.search.value))) {
-      selectCity(slot, slot.search.value);
-    }
-  });
+  if (action === "city") selectCity(clock, event.target.value);
+  if (action === "time") updateFromClock(clock, event.target.value);
+});
+
+cityClocks.addEventListener("input", (event) => {
+  if (event.target?.dataset?.action !== "city") return;
+  const clock = findClock(event.target.dataset.clockId);
+  if (!clock) return;
+  if (cityByLabel.has(normalize(event.target.value))) {
+    selectCity(clock, event.target.value);
+  }
+});
+
+cityClocks.addEventListener("click", (event) => {
+  const action = event.target?.dataset?.action;
+  const clockId = event.target?.dataset?.clockId;
+  const clock = findClock(clockId);
+
+  if (action === "remove") {
+    removeClock(clockId);
+    return;
+  }
+
+  if (!clock) return;
+
+  if (action === "step") {
+    clearMeetingMessage();
+    selectedInstant = new Date(
+      selectedInstant.getTime() + Number(event.target.dataset.stepHours) * 3600000
+    );
+    render();
+  }
+
+  if (action === "zero") {
+    zeroMinutes(clock);
+  }
 });
 
 currentButton.addEventListener("click", () => {
+  clearMeetingMessage();
   selectedInstant = new Date();
   render();
 });
 
-stepButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    selectedInstant = new Date(
-      selectedInstant.getTime() + Number(button.dataset.stepHours) * 3600000
-    );
-    render();
-  });
-});
+addClockButton.addEventListener("click", addClock);
+findMeetingButton.addEventListener("click", findMeetingTime);
 
 populateCityOptions();
 render();
